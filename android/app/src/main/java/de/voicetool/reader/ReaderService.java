@@ -42,7 +42,6 @@ public class ReaderService extends Service implements TextToSpeech.OnInitListene
     public static final String EXTRA_TEXT = "text";
     public static final String EXTRA_RATE = "rate";
     public static final String EXTRA_PITCH = "pitch";
-    public static final String EXTRA_VOLUME = "volume";
     public static final String EXTRA_VOICE = "voice";
     public static final String EXTRA_STATE = "state";
     public static final String EXTRA_INDEX = "index";
@@ -74,7 +73,6 @@ public class ReaderService extends Service implements TextToSpeech.OnInitListene
 
     private float rate = 1f;
     private float pitch = 1f;
-    private float volume = 1f;
     private String voiceName = "";
 
     private AudioManager audioManager;
@@ -203,9 +201,6 @@ public class ReaderService extends Service implements TextToSpeech.OnInitListene
         if (intent.hasExtra(EXTRA_PITCH)) {
             pitch = intent.getFloatExtra(EXTRA_PITCH, 1f);
         }
-        if (intent.hasExtra(EXTRA_VOLUME)) {
-            volume = Math.max(0f, Math.min(1f, intent.getFloatExtra(EXTRA_VOLUME, 1f)));
-        }
         if (intent.hasExtra(EXTRA_VOICE)) {
             String name = intent.getStringExtra(EXTRA_VOICE);
             voiceName = name == null ? "" : name;
@@ -288,7 +283,7 @@ public class ReaderService extends Service implements TextToSpeech.OnInitListene
         }
         currentUtterance = "vt-" + index + "-" + System.currentTimeMillis();
         Bundle params = new Bundle();
-        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, volume);
+        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1f);
         tts.speak(chunks.get(index), TextToSpeech.QUEUE_FLUSH, params, currentUtterance);
         state = STATE_SPEAKING;
         broadcastState();

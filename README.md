@@ -18,7 +18,8 @@ read aloud — offline, without an account, without ads.
   stops on incoming calls.
 - **Voice selection**: automatically picks the best voice for your device
   language; you can change it at any time.
-- **Speed, pitch, and volume** sliders, remembered across launches.
+- **Speed and pitch** sliders, remembered across launches.
+- **Volume slider** for the media stream: changes apply immediately, even mid-sentence.
 - **One-button playback**: *Read aloud* turns into *Pause*/*Resume* while
   reading; the notification offers the same controls.
 - **Save audio**: export the current text to `Music/EasyTTS` as M4A (AAC),
@@ -50,7 +51,7 @@ ship updates with the same signature.
 Copy the APK to your phone and open it, or use ADB:
 
 ```powershell
-adb install -r dist\EasyTTS-0.5.0.apk
+adb install -r dist\EasyTTS-0.5.1.apk
 ```
 
 Wireless debugging (Android 11+):
@@ -58,7 +59,7 @@ Wireless debugging (Android 11+):
 ```powershell
 adb pair <ip>:<pair-port>
 adb connect <ip>:<port>
-adb install -r dist\EasyTTS-0.5.0.apk
+adb install -r dist\EasyTTS-0.5.1.apk
 ```
 
 ## Usage

@@ -3,8 +3,8 @@
 # Output:  dist\EasyTTS-<version>.apk
 
 param(
-    [string]$Version = "0.5.0",
-    [int]$VersionCode = 5,
+    [string]$Version = "0.5.1",
+    [int]$VersionCode = 6,
     [string]$MinSdk = "26",
     [string]$TargetSdk = "36"
 )

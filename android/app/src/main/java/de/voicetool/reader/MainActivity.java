@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,6 +44,7 @@ public class MainActivity extends Activity {
     private Button readButton;
     private Button saveButton;
     private String pendingSaveText;
+    private AudioManager audioManager;
 
     private SharedPreferences prefs;
     private BroadcastReceiver receiver;
@@ -61,6 +63,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
         input = findViewById(R.id.input);
         rateBar = findViewById(R.id.rate);
@@ -76,7 +79,8 @@ public class MainActivity extends Activity {
         }
         rateBar.setProgress(prefs.getInt("rate", 100));
         pitchBar.setProgress(prefs.getInt("pitch", 100));
-        volumeBar.setProgress(prefs.getInt("volume", 100));
+        volumeBar.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+        volumeBar.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
         String savedVoice = prefs.getString("voice", "");
 
         rateBar.setOnSeekBarChangeListener(new SimpleSeekListener() {
@@ -101,8 +105,8 @@ public class MainActivity extends Activity {
             @Override
             public void onProgressChanged(SeekBar bar, int value, boolean fromUser) {
                 if (fromUser) {
-                    prefs.edit().putInt("volume", value).apply();
-                    sendConfig();
+                    // Media stream volume changes take effect immediately.
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value, 0);
                 }
             }
         });
@@ -166,7 +170,6 @@ public class MainActivity extends Activity {
                 .setAction(ReaderService.ACTION_CONFIG)
                 .putExtra(ReaderService.EXTRA_RATE, rateBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_PITCH, pitchBar.getProgress() / 100f)
-                .putExtra(ReaderService.EXTRA_VOLUME, volumeBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_VOICE, prefs.getString("voice", ""));
         startService(intent);
     }
@@ -186,7 +189,6 @@ public class MainActivity extends Activity {
                 .putExtra(ReaderService.EXTRA_TEXT, text)
                 .putExtra(ReaderService.EXTRA_RATE, rateBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_PITCH, pitchBar.getProgress() / 100f)
-                .putExtra(ReaderService.EXTRA_VOLUME, volumeBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_VOICE, prefs.getString("voice", ""));
         startService(intent);
     }
@@ -206,7 +208,6 @@ public class MainActivity extends Activity {
                 .putExtra(ReaderService.EXTRA_TEXT, text)
                 .putExtra(ReaderService.EXTRA_RATE, rateBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_PITCH, pitchBar.getProgress() / 100f)
-                .putExtra(ReaderService.EXTRA_VOLUME, volumeBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_VOICE, prefs.getString("voice", ""));
         startService(intent);
     }
@@ -436,6 +437,13 @@ public class MainActivity extends Activity {
         super.onStart();
         registerStateReceiver();
         sendConfig();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reflect volume changes made with the hardware keys.
+        volumeBar.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
     }
 
     @Override
