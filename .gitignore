@@ -1,0 +1,19 @@
+# Builds
+dist/
+build/
+android/build/
+android/.gradle/
+android/local.properties
+
+# Signierung und lokale Geheimnisse
+android/keystore/
+*.keystore
+*.jks
+keystore.properties
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VoiceTool</string>
+    <string name="headline">Read text aloud</string>
+    <string name="subline">Paste, share, or select text — VoiceTool reads it to you.</string>
+    <string name="hint_input">Paste text here…</string>
+    <string name="hint_empty">Please enter some text first.</string>
+    <string name="speak">Read aloud</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="stop">Stop</string>
+    <string name="label_voices">Voice</string>
+    <string name="label_rate">Speed</string>
+    <string name="label_pitch">Pitch</string>
+    <string name="voice_system">System default</string>
+    <string name="status_ready">Ready.</string>
+    <string name="status_speaking">Reading…</string>
+    <string name="status_paused">Paused.</string>
+    <string name="status_stopped">Stopped.</string>
+    <string name="status_done">Done.</string>
+    <string name="status_error">Speech output failed.</string>
+    <string name="status_no_tts">No text-to-speech engine found on this device.</string>
+    <string name="status_voice">Voice: %1$s</string>
+    <string name="status_progress">Part %1$d of %2$d</string>
+    <string name="status_progress_speaking">Part %1$d of %2$d — reading…</string>
+    <string name="status_progress_paused">Part %1$d of %2$d — paused.</string>
+    <string name="state_paused_short">Paused —</string>
+    <string name="notification_channel">Reading</string>
+    <string name="notification_channel_desc">Playback controls</string>
+    <string name="notification_title">VoiceTool is reading</string>
+    <string name="footer">Keeps reading in the background, even with the screen off. Control it from the notification.</string>
+</resources>
