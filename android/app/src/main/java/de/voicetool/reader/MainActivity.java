@@ -120,6 +120,8 @@ public class MainActivity extends Activity {
             sendAction(ReaderService.ACTION_STOP);
             setStatus(getString(R.string.status_stopped));
         });
+        findViewById(R.id.about).setOnClickListener(
+                v -> startActivity(new Intent(this, AboutActivity.class)));
 
         if (savedVoice != null && !savedVoice.isEmpty()) {
             // Selection is applied once the service sends the voice list.

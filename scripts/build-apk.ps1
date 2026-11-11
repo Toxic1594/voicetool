@@ -1,10 +1,10 @@
 # Builds the Android app without Gradle/Android Studio (Android SDK + JDK only).
 # Usage:   powershell -ExecutionPolicy Bypass -File scripts\build-apk.ps1
-# Output:  dist\VoiceTool-<version>.apk
+# Output:  dist\EasyTTS-<version>.apk
 
 param(
-    [string]$Version = "0.2.0",
-    [int]$VersionCode = 2,
+    [string]$Version = "0.3.0",
+    [int]$VersionCode = 3,
     [string]$MinSdk = "26",
     [string]$TargetSdk = "36"
 )
@@ -119,7 +119,7 @@ if (-not (Test-Path $keystore)) {
     & $keytool -genkeypair -keystore $keystore -storetype PKCS12 -alias voicetool `
         -keyalg RSA -keysize 3072 -validity 10000 `
         -storepass $password -keypass $password `
-        -dname "CN=VoiceTool, O=VoiceTool, C=DE"
+        -dname "CN=EasyTTS, O=EasyTTS, C=DE"
     if ($LASTEXITCODE -ne 0) { throw "keytool failed" }
     Set-Content -Path $keystoreProps -Value "storePassword=$password`nkeyAlias=voicetool" -Encoding ASCII
     Write-Host "Password stored in android\keystore\keystore.properties (gitignored)"
@@ -132,7 +132,7 @@ $aligned = Join-Path $buildDir "app-aligned.apk"
 & $zipalign -f 4 (Join-Path $buildDir "app-unsigned.apk") $aligned
 if ($LASTEXITCODE -ne 0) { throw "zipalign failed" }
 
-$apk = Join-Path $distDir "VoiceTool-$Version.apk"
+$apk = Join-Path $distDir "EasyTTS-$Version.apk"
 & $apksigner sign --ks $keystore --ks-pass "pass:$password" --ks-key-alias voicetool --out $apk $aligned
 if ($LASTEXITCODE -ne 0) { throw "apksigner sign failed" }
 

@@ -1,24 +1,25 @@
-# VoiceTool
+# EasyTTS
 
 A tiny Android text-to-speech reader. Paste, share, or select text and have it
 read aloud — offline, without an account, without ads.
 
-![VoiceTool screenshot](docs/screenshot.png)
+![EasyTTS screenshot](docs/screenshot.png)
 
 ## Features
 
-- **Share or select text** in any app and send it to VoiceTool, or paste it
+- **Share or select text** in any app and send it to EasyTTS, or paste it
   directly.
 - **Background playback** via a foreground service: keeps reading while you
   use other apps or the screen is off.
 - **Notification controls**: pause, resume, and stop without opening the app.
 - **Progress tracking** in 400-character parts, so pausing resumes at the same
   place instead of starting over.
-- **Audio focus**: music and podcasts pause while VoiceTool reads, and playback
+- **Audio focus**: music and podcasts pause while EasyTTS reads, and playback
   stops on incoming calls.
 - **Voice selection**: automatically picks the best voice for your device
   language; you can change it at any time.
 - **Speed and pitch** sliders, remembered across launches.
+- **About screen** with developer credits, source link, and license.
 
 ## Requirements
 
@@ -32,7 +33,7 @@ read aloud — offline, without an account, without ads.
 powershell -ExecutionPolicy Bypass -File scripts\build-apk.ps1
 ```
 
-The APK is written to `dist\VoiceTool-<version>.apk` and signed with a local
+The APK is written to `dist\EasyTTS-<version>.apk` and signed with a local
 debug-style key.
 
 When run for the first time, the script generates a signing key in
@@ -44,7 +45,7 @@ ship updates with the same signature.
 Copy the APK to your phone and open it, or use ADB:
 
 ```powershell
-adb install -r dist\VoiceTool-0.2.0.apk
+adb install -r dist\EasyTTS-0.3.0.apk
 ```
 
 Wireless debugging (Android 11+):
@@ -52,12 +53,12 @@ Wireless debugging (Android 11+):
 ```powershell
 adb pair <ip>:<pair-port>
 adb connect <ip>:<port>
-adb install -r dist\VoiceTool-0.2.0.apk
+adb install -r dist\EasyTTS-0.3.0.apk
 ```
 
 ## Usage
 
-1. Open VoiceTool and paste text, or share text from another app.
+1. Open EasyTTS and paste text, or share text from another app.
 2. Press **Read aloud**. Playback starts immediately.
 3. Leave the app or lock the screen — reading continues.
 4. Use the notification (or the in-app buttons) to pause, resume, or stop.
@@ -71,6 +72,7 @@ text selection menu of other apps.
 android/app/src/main/java/de/voicetool/reader/
   MainActivity.java   UI, share/process-text handling, settings
   ReaderService.java  background playback, notification, audio focus
+  AboutActivity.java  credits, source link, license
 android/app/src/main/res/   layout, strings, colors, icons
 android/app/build.gradle.kts  Android Studio project (optional)
 scripts/build-apk.ps1       build without Gradle

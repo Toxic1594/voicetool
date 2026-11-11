@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "VoiceTool"
+rootProject.name = "EasyTTS"
 include(":app")

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">VoiceTool</string>
+    <string name="app_name">EasyTTS</string>
     <string name="headline">Read text aloud</string>
-    <string name="subline">Paste, share, or select text — VoiceTool reads it to you.</string>
+    <string name="subline">Paste, share, or select text — EasyTTS reads it to you.</string>
     <string name="hint_input">Paste text here…</string>
     <string name="hint_empty">Please enter some text first.</string>
     <string name="speak">Read aloud</string>
@@ -27,6 +27,20 @@
     <string name="state_paused_short">Paused —</string>
     <string name="notification_channel">Reading</string>
     <string name="notification_channel_desc">Playback controls</string>
-    <string name="notification_title">VoiceTool is reading</string>
+    <string name="notification_title">EasyTTS is reading</string>
     <string name="footer">Keeps reading in the background, even with the screen off. Control it from the notification.</string>
+    <string name="credits_link">About &amp; credits</string>
+
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_intro">A minimal text-to-speech reader for Android. Paste, share, or select text and have it read aloud — offline, without an account.</string>
+    <string name="about_developer_label">Developer</string>
+    <string name="about_developer">GitHub — Toxic1594</string>
+    <string name="about_source_label">Source code</string>
+    <string name="about_source">github.com/Toxic1594/voicetool</string>
+    <string name="about_license_label">License</string>
+    <string name="about_license">MIT License — free to use, modify, and share.</string>
+    <string name="about_tts_label">Text-to-speech</string>
+    <string name="about_tts">Voice output is provided by the text-to-speech engine installed on your device.</string>
+    <string name="about_back">Back</string>
 </resources>
