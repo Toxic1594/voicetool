@@ -1,5 +1,6 @@
 package de.voicetool.reader;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -30,6 +32,7 @@ public class MainActivity extends Activity {
 
     private static final String PREFS = "voicetool";
     private static final int REQUEST_NOTIFICATIONS = 7;
+    private static final int REQUEST_WRITE = 11;
 
     private EditText input;
     private SeekBar rateBar;
@@ -37,6 +40,8 @@ public class MainActivity extends Activity {
     private Spinner voiceSpinner;
     private TextView status;
     private Button pauseButton;
+    private Button saveButton;
+    private String pendingSaveText;
 
     private SharedPreferences prefs;
     private BroadcastReceiver receiver;
@@ -114,12 +119,16 @@ public class MainActivity extends Activity {
 
         Button speakButton = findViewById(R.id.speak);
         Button stopButton = findViewById(R.id.stop);
+        saveButton = findViewById(R.id.save);
         speakButton.setOnClickListener(v -> speakInput());
         pauseButton.setOnClickListener(v -> sendAction(ReaderService.ACTION_TOGGLE));
         stopButton.setOnClickListener(v -> {
             sendAction(ReaderService.ACTION_STOP);
             setStatus(getString(R.string.status_stopped));
         });
+        saveButton.setOnClickListener(v -> saveAudio());
+        findViewById(R.id.saved).setOnClickListener(
+                v -> startActivity(new Intent(this, SavedActivity.class)));
         findViewById(R.id.about).setOnClickListener(
                 v -> startActivity(new Intent(this, AboutActivity.class)));
 
@@ -164,6 +173,71 @@ public class MainActivity extends Activity {
                 .putExtra(ReaderService.EXTRA_PITCH, pitchBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_VOICE, prefs.getString("voice", ""));
         startService(intent);
+    }
+
+    // -- Export -----------------------------------------------------------
+    private void saveAudio() {
+        String text = input.getText().toString().trim();
+        if (text.isEmpty()) {
+            Toast.makeText(this, R.string.hint_empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+                && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            pendingSaveText = text;
+            requestPermissions(
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE);
+            return;
+        }
+        export(text);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
+        if (requestCode != REQUEST_WRITE) {
+            return;
+        }
+        String text = pendingSaveText;
+        pendingSaveText = null;
+        if (text != null && results.length > 0
+                && results[0] == PackageManager.PERMISSION_GRANTED) {
+            export(text);
+        } else {
+            Toast.makeText(this, R.string.storage_permission, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void export(final String text) {
+        sendAction(ReaderService.ACTION_STOP);
+        saveButton.setEnabled(false);
+        setStatus(getString(R.string.status_saving));
+
+        final float rate = rateBar.getProgress() / 100f;
+        final float pitch = pitchBar.getProgress() / 100f;
+        final String voice = prefs.getString("voice", "");
+        new Thread(() -> {
+            try {
+                Uri uri = AudioExporter.export(this, text, rate, pitch, voice,
+                        (done, total) -> runOnUiThread(() -> setStatus(
+                                getString(R.string.status_saving_progress, done, total))));
+                runOnUiThread(() -> {
+                    saveButton.setEnabled(true);
+                    setStatus(getString(R.string.status_saved));
+                    Toast.makeText(MainActivity.this, R.string.status_saved,
+                            Toast.LENGTH_LONG).show();
+                });
+            } catch (Exception exc) {
+                runOnUiThread(() -> {
+                    saveButton.setEnabled(true);
+                    setStatus(getString(R.string.status_save_failed));
+                    Toast.makeText(MainActivity.this,
+                            getString(R.string.status_save_failed) + " " + exc.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                });
+            }
+        }, "audio-export").start();
     }
 
     // -- Status from the service -----------------------------------------

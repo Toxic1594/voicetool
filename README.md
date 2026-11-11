@@ -19,6 +19,9 @@ read aloud — offline, without an account, without ads.
 - **Voice selection**: automatically picks the best voice for your device
   language; you can change it at any time.
 - **Speed and pitch** sliders, remembered across launches.
+- **Save audio**: export the current text to `Music/EasyTTS` as M4A (AAC),
+  with a WAV fallback if encoding is unavailable.
+- **Saved screen**: play, share, or delete exported files.
 - **About screen** with developer credits, source link, and license.
 
 ## Requirements
@@ -45,7 +48,7 @@ ship updates with the same signature.
 Copy the APK to your phone and open it, or use ADB:
 
 ```powershell
-adb install -r dist\EasyTTS-0.3.0.apk
+adb install -r dist\EasyTTS-0.4.0.apk
 ```
 
 Wireless debugging (Android 11+):
@@ -53,7 +56,7 @@ Wireless debugging (Android 11+):
 ```powershell
 adb pair <ip>:<pair-port>
 adb connect <ip>:<port>
-adb install -r dist\EasyTTS-0.3.0.apk
+adb install -r dist\EasyTTS-0.4.0.apk
 ```
 
 ## Usage
@@ -62,6 +65,8 @@ adb install -r dist\EasyTTS-0.3.0.apk
 2. Press **Read aloud**. Playback starts immediately.
 3. Leave the app or lock the screen — reading continues.
 4. Use the notification (or the in-app buttons) to pause, resume, or stop.
+5. Press **Save audio** to export the text to `Music/EasyTTS`. The **Saved**
+   screen lets you play, share, or delete the files.
 
 The app also registers for `ACTION_PROCESS_TEXT`, so "Read aloud" appears in the
 text selection menu of other apps.
@@ -72,6 +77,8 @@ text selection menu of other apps.
 android/app/src/main/java/de/voicetool/reader/
   MainActivity.java   UI, share/process-text handling, settings
   ReaderService.java  background playback, notification, audio focus
+  AudioExporter.java  text-to-audio export (WAV -> AAC/M4A, MediaStore)
+  SavedActivity.java  list, play, share, delete exports
   AboutActivity.java  credits, source link, license
 android/app/src/main/res/   layout, strings, colors, icons
 android/app/build.gradle.kts  Android Studio project (optional)

@@ -43,4 +43,22 @@
     <string name="about_tts_label">Text-to-speech</string>
     <string name="about_tts">Voice output is provided by the text-to-speech engine installed on your device.</string>
     <string name="about_back">Back</string>
+
+    <string name="save_audio">Save audio</string>
+    <string name="saved">Saved</string>
+    <string name="status_saving">Saving audio…</string>
+    <string name="status_saving_progress">Saving audio… %1$d/%2$d</string>
+    <string name="status_saved">Saved to Music/EasyTTS</string>
+    <string name="status_save_failed">Could not save audio.</string>
+    <string name="storage_permission">Storage permission is required to save audio.</string>
+    <string name="saved_title">Saved audio</string>
+    <string name="saved_subtitle">Files are stored in Music/EasyTTS.</string>
+    <string name="saved_empty">No saved audio yet.\nUse “Save audio” to export the current text.</string>
+    <string name="saved_playing">Playing %1$s</string>
+    <string name="saved_play_failed">Could not play this file.</string>
+    <string name="saved_share">Share</string>
+    <string name="saved_delete">Delete</string>
+    <string name="saved_delete_confirm">Delete “%1$s”?</string>
+    <string name="saved_delete_yes">Delete</string>
+    <string name="saved_delete_no">Cancel</string>
 </resources>
