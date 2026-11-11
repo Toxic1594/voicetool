@@ -33,6 +33,7 @@ import java.util.Locale;
 public class ReaderService extends Service implements TextToSpeech.OnInitListener {
 
     public static final String ACTION_SPEAK = "de.voicetool.reader.SPEAK";
+    public static final String ACTION_READ = "de.voicetool.reader.READ";
     public static final String ACTION_TOGGLE = "de.voicetool.reader.TOGGLE";
     public static final String ACTION_STOP = "de.voicetool.reader.STOP";
     public static final String ACTION_CONFIG = "de.voicetool.reader.CONFIG";
@@ -41,6 +42,7 @@ public class ReaderService extends Service implements TextToSpeech.OnInitListene
     public static final String EXTRA_TEXT = "text";
     public static final String EXTRA_RATE = "rate";
     public static final String EXTRA_PITCH = "pitch";
+    public static final String EXTRA_VOLUME = "volume";
     public static final String EXTRA_VOICE = "voice";
     public static final String EXTRA_STATE = "state";
     public static final String EXTRA_INDEX = "index";
@@ -72,6 +74,7 @@ public class ReaderService extends Service implements TextToSpeech.OnInitListene
 
     private float rate = 1f;
     private float pitch = 1f;
+    private float volume = 1f;
     private String voiceName = "";
 
     private AudioManager audioManager;
@@ -95,6 +98,17 @@ public class ReaderService extends Service implements TextToSpeech.OnInitListene
                 String text = intent.getStringExtra(EXTRA_TEXT);
                 if (!TextUtils.isEmpty(text)) {
                     speak(text);
+                }
+            } else if (ACTION_READ.equals(action)) {
+                // The service decides: pause/resume when active, otherwise start.
+                applyConfig(intent);
+                if (paused || (tts != null && tts.isSpeaking())) {
+                    toggle();
+                } else {
+                    String text = intent.getStringExtra(EXTRA_TEXT);
+                    if (!TextUtils.isEmpty(text)) {
+                        speak(text);
+                    }
                 }
             } else if (ACTION_TOGGLE.equals(action)) {
                 toggle();
@@ -189,6 +203,9 @@ public class ReaderService extends Service implements TextToSpeech.OnInitListene
         if (intent.hasExtra(EXTRA_PITCH)) {
             pitch = intent.getFloatExtra(EXTRA_PITCH, 1f);
         }
+        if (intent.hasExtra(EXTRA_VOLUME)) {
+            volume = Math.max(0f, Math.min(1f, intent.getFloatExtra(EXTRA_VOLUME, 1f)));
+        }
         if (intent.hasExtra(EXTRA_VOICE)) {
             String name = intent.getStringExtra(EXTRA_VOICE);
             voiceName = name == null ? "" : name;
@@ -271,7 +288,7 @@ public class ReaderService extends Service implements TextToSpeech.OnInitListene
         }
         currentUtterance = "vt-" + index + "-" + System.currentTimeMillis();
         Bundle params = new Bundle();
-        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1f);
+        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, volume);
         tts.speak(chunks.get(index), TextToSpeech.QUEUE_FLUSH, params, currentUtterance);
         state = STATE_SPEAKING;
         broadcastState();

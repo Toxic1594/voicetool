@@ -37,9 +37,10 @@ public class MainActivity extends Activity {
     private EditText input;
     private SeekBar rateBar;
     private SeekBar pitchBar;
+    private SeekBar volumeBar;
     private Spinner voiceSpinner;
     private TextView status;
-    private Button pauseButton;
+    private Button readButton;
     private Button saveButton;
     private String pendingSaveText;
 
@@ -64,13 +65,18 @@ public class MainActivity extends Activity {
         input = findViewById(R.id.input);
         rateBar = findViewById(R.id.rate);
         pitchBar = findViewById(R.id.pitch);
+        volumeBar = findViewById(R.id.volume);
         voiceSpinner = findViewById(R.id.voice);
         status = findViewById(R.id.status);
-        pauseButton = findViewById(R.id.pause);
+        readButton = findViewById(R.id.speak);
 
-        input.setText(prefs.getString("lastText", ""));
+        // Keep text across rotation, but start empty on a normal launch.
+        if (savedInstanceState != null) {
+            input.setText(savedInstanceState.getString("draft", ""));
+        }
         rateBar.setProgress(prefs.getInt("rate", 100));
         pitchBar.setProgress(prefs.getInt("pitch", 100));
+        volumeBar.setProgress(prefs.getInt("volume", 100));
         String savedVoice = prefs.getString("voice", "");
 
         rateBar.setOnSeekBarChangeListener(new SimpleSeekListener() {
@@ -87,6 +93,15 @@ public class MainActivity extends Activity {
             public void onProgressChanged(SeekBar bar, int value, boolean fromUser) {
                 if (fromUser) {
                     prefs.edit().putInt("pitch", value).apply();
+                    sendConfig();
+                }
+            }
+        });
+        volumeBar.setOnSeekBarChangeListener(new SimpleSeekListener() {
+            @Override
+            public void onProgressChanged(SeekBar bar, int value, boolean fromUser) {
+                if (fromUser) {
+                    prefs.edit().putInt("volume", value).apply();
                     sendConfig();
                 }
             }
@@ -117,11 +132,9 @@ public class MainActivity extends Activity {
             }
         });
 
-        Button speakButton = findViewById(R.id.speak);
         Button stopButton = findViewById(R.id.stop);
         saveButton = findViewById(R.id.save);
-        speakButton.setOnClickListener(v -> speakInput());
-        pauseButton.setOnClickListener(v -> sendAction(ReaderService.ACTION_TOGGLE));
+        readButton.setOnClickListener(v -> onReadClicked());
         stopButton.setOnClickListener(v -> {
             sendAction(ReaderService.ACTION_STOP);
             setStatus(getString(R.string.status_stopped));
@@ -137,7 +150,9 @@ public class MainActivity extends Activity {
             prefs.edit().putString("voice", savedVoice).apply();
         }
         askNotificationPermission();
-        handleIntent(getIntent());
+        if (savedInstanceState == null) {
+            handleIntent(getIntent());
+        }
     }
 
     // -- Control the service ---------------------------------------------
@@ -151,6 +166,27 @@ public class MainActivity extends Activity {
                 .setAction(ReaderService.ACTION_CONFIG)
                 .putExtra(ReaderService.EXTRA_RATE, rateBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_PITCH, pitchBar.getProgress() / 100f)
+                .putExtra(ReaderService.EXTRA_VOLUME, volumeBar.getProgress() / 100f)
+                .putExtra(ReaderService.EXTRA_VOICE, prefs.getString("voice", ""));
+        startService(intent);
+    }
+
+    private void onReadClicked() {
+        String text = input.getText().toString().trim();
+        boolean active = ReaderService.STATE_SPEAKING.equals(currentState)
+                || ReaderService.STATE_PAUSED.equals(currentState);
+        if (text.isEmpty() && !active) {
+            Toast.makeText(this, R.string.hint_empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!text.isEmpty()) {
+            }
+        Intent intent = new Intent(this, ReaderService.class)
+                .setAction(ReaderService.ACTION_READ)
+                .putExtra(ReaderService.EXTRA_TEXT, text)
+                .putExtra(ReaderService.EXTRA_RATE, rateBar.getProgress() / 100f)
+                .putExtra(ReaderService.EXTRA_PITCH, pitchBar.getProgress() / 100f)
+                .putExtra(ReaderService.EXTRA_VOLUME, volumeBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_VOICE, prefs.getString("voice", ""));
         startService(intent);
     }
@@ -161,7 +197,6 @@ public class MainActivity extends Activity {
             Toast.makeText(this, R.string.hint_empty, Toast.LENGTH_SHORT).show();
             return;
         }
-        prefs.edit().putString("lastText", text).apply();
         speak(text);
     }
 
@@ -171,6 +206,7 @@ public class MainActivity extends Activity {
                 .putExtra(ReaderService.EXTRA_TEXT, text)
                 .putExtra(ReaderService.EXTRA_RATE, rateBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_PITCH, pitchBar.getProgress() / 100f)
+                .putExtra(ReaderService.EXTRA_VOLUME, volumeBar.getProgress() / 100f)
                 .putExtra(ReaderService.EXTRA_VOICE, prefs.getString("voice", ""));
         startService(intent);
     }
@@ -325,12 +361,12 @@ public class MainActivity extends Activity {
 
     private void showState() {
         if (ReaderService.STATE_ERROR.equals(currentState)) {
-            pauseButton.setText(R.string.pause);
+            readButton.setText(R.string.speak);
             setStatus(getString(R.string.status_error));
             return;
         }
         if (ReaderService.STATE_SPEAKING.equals(currentState)) {
-            pauseButton.setText(R.string.pause);
+            readButton.setText(R.string.pause);
             if (currentTotal > 0) {
                 setStatus(getString(R.string.status_progress_speaking,
                         Math.min(currentIndex + 1, currentTotal), currentTotal));
@@ -340,7 +376,7 @@ public class MainActivity extends Activity {
             return;
         }
         if (ReaderService.STATE_PAUSED.equals(currentState)) {
-            pauseButton.setText(R.string.resume);
+            readButton.setText(R.string.resume);
             if (currentTotal > 0) {
                 setStatus(getString(R.string.status_progress_paused,
                         Math.min(currentIndex + 1, currentTotal), currentTotal));
@@ -349,7 +385,7 @@ public class MainActivity extends Activity {
             }
             return;
         }
-        pauseButton.setText(R.string.pause);
+        readButton.setText(R.string.speak);
         if (ReaderService.STATE_DONE.equals(currentState)) {
             setStatus(getString(R.string.status_done));
         } else if (ReaderService.STATE_IDLE.equals(currentState)) {
@@ -369,8 +405,13 @@ public class MainActivity extends Activity {
         if (intent == null) {
             return;
         }
-        CharSequence shared = null;
         String action = intent.getAction();
+        if (Intent.ACTION_MAIN.equals(action)) {
+            // Opened from the launcher: start with an empty field.
+            input.setText("");
+            return;
+        }
+        CharSequence shared = null;
         if (Intent.ACTION_SEND.equals(action)) {
             shared = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         } else if (Intent.ACTION_PROCESS_TEXT.equals(action)) {
@@ -381,6 +422,12 @@ public class MainActivity extends Activity {
             input.setText(text);
             speak(text);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("draft", input.getText().toString());
     }
 
     // -- Lifecycle --------------------------------------------------------
@@ -398,12 +445,6 @@ public class MainActivity extends Activity {
             receiverRegistered = false;
         }
         super.onStop();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        prefs.edit().putString("lastText", input.getText().toString()).apply();
     }
 
     @Override

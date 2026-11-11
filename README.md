@@ -18,7 +18,9 @@ read aloud — offline, without an account, without ads.
   stops on incoming calls.
 - **Voice selection**: automatically picks the best voice for your device
   language; you can change it at any time.
-- **Speed and pitch** sliders, remembered across launches.
+- **Speed, pitch, and volume** sliders, remembered across launches.
+- **One-button playback**: *Read aloud* turns into *Pause*/*Resume* while
+  reading; the notification offers the same controls.
 - **Save audio**: export the current text to `Music/EasyTTS` as M4A (AAC),
   with a WAV fallback if encoding is unavailable.
 - **Saved screen**: play, share, or delete exported files.
@@ -48,7 +50,7 @@ ship updates with the same signature.
 Copy the APK to your phone and open it, or use ADB:
 
 ```powershell
-adb install -r dist\EasyTTS-0.4.0.apk
+adb install -r dist\EasyTTS-0.5.0.apk
 ```
 
 Wireless debugging (Android 11+):
@@ -56,13 +58,14 @@ Wireless debugging (Android 11+):
 ```powershell
 adb pair <ip>:<pair-port>
 adb connect <ip>:<port>
-adb install -r dist\EasyTTS-0.4.0.apk
+adb install -r dist\EasyTTS-0.5.0.apk
 ```
 
 ## Usage
 
 1. Open EasyTTS and paste text, or share text from another app.
-2. Press **Read aloud**. Playback starts immediately.
+2. Press **Read aloud**. While reading, the same button turns into
+   **Pause**, then **Resume**.
 3. Leave the app or lock the screen — reading continues.
 4. Use the notification (or the in-app buttons) to pause, resume, or stop.
 5. Press **Save audio** to export the text to `Music/EasyTTS`. The **Saved**

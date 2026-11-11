@@ -12,6 +12,7 @@
     <string name="label_voices">Voice</string>
     <string name="label_rate">Speed</string>
     <string name="label_pitch">Pitch</string>
+    <string name="label_volume">Volume</string>
     <string name="voice_system">System default</string>
     <string name="status_ready">Ready.</string>
     <string name="status_speaking">Reading…</string>
